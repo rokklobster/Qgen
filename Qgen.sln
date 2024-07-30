@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qgen", "Qgen\Qgen.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qgen.Tests", "Qgen.Tests\Qgen.Tests.csproj", "{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qgen.Generator", "Qgen.Generator\Qgen.Generator.csproj", "{6900C816-B9E0-4AA2-AF40-E788C77BF6E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6900C816-B9E0-4AA2-AF40-E788C77BF6E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6900C816-B9E0-4AA2-AF40-E788C77BF6E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6900C816-B9E0-4AA2-AF40-E788C77BF6E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6900C816-B9E0-4AA2-AF40-E788C77BF6E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
