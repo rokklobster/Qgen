@@ -5,13 +5,6 @@ namespace Qgen.Tests.System
 {
     public abstract class DbFixtureBase : IAsyncLifetime
     {
-        public DbFixtureBase()
-        {
-            // todo: temp; should be done via assy load event or whatevs
-
-            SchemaRepo.AppInstance = new TestSchemaRepo();
-        }
-
         public Dependencies Dependencies { get; private set; }
 
         public Task RunTest<T>(Func<TestDb, QueryBuilder<T>, Dependencies, Task> test) where T : class

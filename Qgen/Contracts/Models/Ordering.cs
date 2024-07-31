@@ -1,4 +1,14 @@
 ﻿namespace Qgen.Contracts.Models
 {
-    public record Ordering(string Name, bool Ascending);
+    public class Ordering
+    {
+        public Ordering(string name, bool ascending)
+        {
+            Name = name;
+            Ascending = ascending;
+        }
+
+        public string Name { get; }
+        public bool Ascending { get; }
+    }
 }

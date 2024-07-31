@@ -33,11 +33,11 @@ namespace Qgen.Tests.Fixtures
             {
                 var res = qb.GetFrom(
                     new Query(Filters: new FilterComposition
-                    {
-                        Op = CompositionOp.And,
-                        Filters = new[] {
+                    (
+                        CompositionOp.And,
+                        filters: new[] {
                         new Filter(op, nameof(TestEntityFluent.Name), arg) }
-                    }));
+                    )));
 
                 var resEntries = (await res.ToListAsync()).Select(Simplify).ToArray();
                 var expEntries = (await expected(db).OrderBy(x => x.Id).ToListAsync()).Select(Simplify).ToArray();
@@ -54,10 +54,10 @@ namespace Qgen.Tests.Fixtures
                 SimpleCase(Operation.Neq, "000101", d => d.EntitiesF.Where(x=>x.Name != "000101")),
                 SimpleCase(Operation.In, arrArg, d => d.EntitiesF.Where(x=>arr.Contains(x.Name))),
                 SimpleCase(Operation.NotIn, arrArg, d => d.EntitiesF.Where(x=>!arr.Contains(x.Name))),
-                SimpleCase(Operation.Contains, "101", d => d.EntitiesF.Where(x=>x.Name.IndexOf("101")>=0)),
+                SimpleCase(Operation.Contains, "101", d => d.EntitiesF.Where(x=>x.Name!.IndexOf("101")>=0)),
                 SimpleCase(Operation.Contains, "\"\"", d => d.EntitiesF.Where(x=>true)),
                 SimpleCase(Operation.DoesNotContain, "\"\"", d => d.EntitiesF.Where(x=>false)),
-                SimpleCase(Operation.DoesNotContain, "101", d => d.EntitiesF.Where(x=> !x.Name.Contains("101"))),
+                SimpleCase(Operation.DoesNotContain, "101", d => d.EntitiesF.Where(x=> !x.Name!.Contains("101"))),
             };
         }
 

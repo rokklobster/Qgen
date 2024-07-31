@@ -4,7 +4,7 @@
     {
         public static T[] OrEmpty<T>(this T[]? collection) => collection ?? Array.Empty<T>();
 
-        public static IEnumerable<T> IfEmpty<T>(this IEnumerable<T> s, T item) => s.Any() ? s : new[] { item };
+        public static IEnumerable<T> IfEmpty<T>(this IEnumerable<T> s, T item) => s.Any() ? s : [item];
 
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source) => source.Where(x => x is not null)!;
 

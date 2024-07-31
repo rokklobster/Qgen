@@ -1,5 +1,6 @@
 ﻿using Qgen.Contracts.Services;
 using Qgen.Services;
+using Qgen.Tests.Generated.Schema;
 
 namespace Qgen.Tests.System
 {
@@ -17,7 +18,7 @@ namespace Qgen.Tests.System
         {
             Db = db;
             SetProvider=new DbSetProvider(db);
-            Repo = SchemaRepo.AppInstance ?? throw new NullReferenceException("Schema repo is not populated");
+            Repo = QgenTestsRepo.Instance;
         }
     }
 }

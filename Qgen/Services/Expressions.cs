@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using static System.Linq.Expressions.Expression;
 
 namespace Qgen.Services
@@ -35,5 +36,12 @@ namespace Qgen.Services
             IsNullableType(type)
                 ? type.GetGenericArguments()[0]
                 : type;
+
+        public static MethodInfo? GetMethod<T>(string name, Func<MethodInfo, bool> filter) => GetMethod(typeof(T), name, filter);
+
+        public static MethodInfo? GetMethod(Type t, string name, Func<MethodInfo, bool> filter) =>
+            t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+            .Where(x => x.Name == name || x.Name.StartsWith(name))
+            .FirstOrDefault(filter ?? (_ => true));
     }
 }

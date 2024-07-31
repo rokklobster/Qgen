@@ -18,9 +18,9 @@ namespace Qgen.Services
             var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
                 ? p.Name
                 : throw new InvalidOperationException("Only property reads are supported");
-            var schema = result.schemata.GetOrAdd(name, () => new());
-            schema.Type = p.PropertyType;
-            return new FieldBuilder<F>(schema, name, result, p);
+            var schema = result.schemata.GetOrAdd(name, () => new(p.PropertyType));
+            var cust = result.customizations.GetOrAdd(name, () => new());
+            return new FieldBuilder<F>(schema, cust, name, result, p);
         }
 
         public SchemaBuilder<T> AddDefaultOrderingLayer<F>(Expression<Func<T, F>> prop, bool asc)
@@ -28,20 +28,22 @@ namespace Qgen.Services
             var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
                 ? p.Name
                 : throw new InvalidOperationException("Only property reads are supported");
-            result.DefaultOrdering = new Contracts.Models.Ordering(name, asc);
+            result.DefaultOrdering ??= new Contracts.Models.Ordering(name, asc);
             return this;
         }
 
         public class FieldBuilder<F>
         {
             private readonly FieldSchema fieldSchema;
+            private readonly Customizations cust;
             private readonly string name;
             private readonly SchemaContainer<T> typeSchema;
             private readonly PropertyInfo property;
 
-            internal FieldBuilder(FieldSchema s, string name, SchemaContainer<T> result, PropertyInfo p)
+            internal FieldBuilder(FieldSchema s, Customizations cust, string name, SchemaContainer<T> result, PropertyInfo p)
             {
                 this.fieldSchema = s;
+                this.cust = cust;
                 this.name = name;
                 this.typeSchema = result;
                 this.property = p;
@@ -70,31 +72,34 @@ namespace Qgen.Services
                 return this;
             }
 
-            public FieldBuilder<F> EnableFiltering(Func<ParameterExpression, Expression>? customAccess = null)
+            public FieldBuilder<F> EnableFiltering(Func<Expression, Expression>? customAccess = null)
             {
-                fieldSchema.Filter = customAccess ?? (px => Property(px, property));
+                fieldSchema.Filter = px => Property(px, property);
+                cust.Filter = customAccess;
                 return this;
             }
 
-            public FieldBuilder<F> EnableSorting(Func<ParameterExpression, Expression>? customAccess = null)
+            public FieldBuilder<F> EnableSorting(Func<Expression, Expression>? customAccess = null)
             {
-                fieldSchema.Sort = customAccess ?? (px => Property(px, property));
+                fieldSchema.Sort = px => Property(px, property);
+                cust.Filter = customAccess;
                 return this;
             }
 
-            public FieldBuilder<F> EnableGrouping(Func<ParameterExpression, Expression>? customAccess = null)
+            public FieldBuilder<F> EnableGrouping(Func<Expression, Expression>? customAccess = null)
             {
-                fieldSchema.Group = customAccess ?? (px => Call(Property(px, property), ObjectToStringMethod));
+                fieldSchema.Group = px => Call(Property(px, property), ObjectToStringMethod);
+                cust.Filter = customAccess;
                 return this;
             }
 
-            public FieldBuilder<F> EnableSearching(Func<ParameterExpression, Expression>? customAccess = null)
+            public FieldBuilder<F> EnableSearching(Func<Expression, Expression>? customAccess = null)
             {
                 fieldSchema.Search =
-                    customAccess ??
-                    (property.PropertyType == typeof(string)
+                    property.PropertyType == typeof(string)
                     ? (px => Property(px, property))
-                    : (px => Call(Property(px, property), ObjectToStringMethod)));
+                    : (px => Call(Property(px, property), ObjectToStringMethod));
+                cust.Filter = customAccess;
                 return this;
             }
 

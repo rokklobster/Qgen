@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Microsoft.CodeAnalysis;
 
 namespace Qgen.Generator
 {
@@ -12,12 +12,20 @@ namespace Qgen.Generator
             // generate schema using SchemaBuilder; generate schema repo derived from DefaultSchemaRepo;
             // in ctor, collect all schemata
 
-            context.AddSource("Test.g.cs", "namespace Test { public static class TestClass { public static void M() { System.Console.WriteLine(\"hi!\") } } }");
+#if DEBUG_GEN
+            if (!Debugger.IsAttached)
+                Debugger.Launch();
+#endif
+
+            var processor = new AssemblyProcessor(context.Compilation, context.AddSource);
+            processor.Generate(context.CancellationToken);
         }
 
         public void Initialize(GeneratorInitializationContext context)
         {
             // not used
         }
+
+
     }
 }

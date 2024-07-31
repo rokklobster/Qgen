@@ -10,6 +10,11 @@ namespace Qgen.Services
     {
         public Type Type { get; internal set; }
 
+        public FieldSchema(Type type)
+        {
+            Type = type;
+        }
+
         public Func<ParameterExpression, Expression>? Filter { get; internal set; }
         public Func<ParameterExpression, Expression>? Sort { get; internal set; }
         public Func<ParameterExpression, Expression>? Search { get; internal set; }
@@ -33,7 +38,7 @@ namespace Qgen.Services
 
         private readonly Func<Expression, Expression, Expression> defaultSearch = (s, q) => Call(s, StringContainsMethod, q);
 
-        public Ordering DefaultOrdering { get; internal set; }
+        public Ordering? DefaultOrdering { get; internal set; }
 
         public IEnumerable<(string, Func<ParameterExpression, Expression>)> GetSearchable() =>
             schemata.Where(x => x.Value.Search is not null).Select(x => (x.Key, x.Value.Search))!;
@@ -61,17 +66,19 @@ namespace Qgen.Services
 
             if (transformer is null) return null;
 
-#pragma warning disable CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
-            return customizations.TryGetValue(field, out var c)
-                ? p => (target switch
-                {
-                    Target.Filter => c.Filter,
-                    Target.Search => c.Search,
-                    Target.Sort => c.Sort,
-                    Target.Group => c.Group,
-                })?.Invoke(transformer(p))
-                : transformer;
-#pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
+            if (!customizations.TryGetValue(field, out var c))
+                return transformer;
+
+            var t2 = target switch
+            {
+                Target.Filter => c.Filter,
+                Target.Search => c.Search,
+                Target.Sort => c.Sort,
+                Target.Group => c.Group,
+                _ => throw new ArgumentOutOfRangeException("not reachable"),
+            };
+
+            return t2 is null ? transformer : (p => t2(transformer(p)));
         }
     }
 }

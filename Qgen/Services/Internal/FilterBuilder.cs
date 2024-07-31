@@ -39,9 +39,10 @@ namespace Qgen.Services.Internal
             // todo: fail if not found?
             if (t is null) return null;
 
-            var type = s.GetType(f.Field);
+            var prop = t(p);
+            var type = prop.Type;
             var cleanType = UnnullifyType(type);
-            return WrapInNullCheck(t(p), type,
+            return WrapInNullCheck(prop, type,
                 x => BuildFilterExpression(x, ParseArg(cleanType, f.Op, f.Arg), f.Op, cleanType),
                 () => False);
         }

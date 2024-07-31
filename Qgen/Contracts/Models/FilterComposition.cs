@@ -2,10 +2,17 @@
 {
     public class FilterComposition
     {
-        public CompositionOp Op { get; init; }
+        public FilterComposition(CompositionOp op, FilterComposition[]? compositions = null, Filter[]? filters = null)
+        {
+            Op = op;
+            Compositions = compositions;
+            Filters = filters;
+        }
 
-        public FilterComposition[]? Compositions { get; init; }
+        public CompositionOp Op { get; }
 
-        public Filter[]? Filters { get; init; }
+        public FilterComposition[]? Compositions { get; }
+
+        public Filter[]? Filters { get; }
     }
 }

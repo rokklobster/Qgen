@@ -33,11 +33,6 @@ namespace Qgen.Contracts.Services
 
     public interface SchemaRepo
     {
-        /// <summary>
-        /// this one is populated on app level; todo: somehow
-        /// </summary>
-        public static SchemaRepo? AppInstance { get; set; }
-
         Schema<T>? Get<T>();
     }
 }

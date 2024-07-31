@@ -2,11 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Qgen.Contracts.Models;
 using Qgen.Tests.System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Qgen.Tests.Fixtures
 {
@@ -30,12 +25,27 @@ namespace Qgen.Tests.Fixtures
             fixture.RunTest<TestEntityFluent>(async (db, qb, deps) =>
             {
                 var res = qb.GetFrom(
-                    new Query(Filters: new FilterComposition
-                    {
-                        Op = CompositionOp.And,
-                        Filters = new[] {
-                        new Filter(op, nameof(TestEntityFluent.Amount), arg) }
-                    }));
+                    new Query(Filters: new FilterComposition(
+                        CompositionOp.And,
+                        filters: new[] { new Filter(op, nameof(TestEntityFluent.Amount), arg) }
+                    )));
+
+                var resEntries = (await res.ToListAsync()).Select(Simplify).ToArray();
+                var expEntries = (await expected(db).OrderBy(x => x.Id).ToListAsync()).Select(Simplify).ToArray();
+
+                resEntries.Should().BeEquivalentTo(expEntries);
+            });
+
+        [Theory]
+        [MemberData(nameof(SimpleAbsOperatorsCases))]
+        public Task TestSimpleOperatorsForTransformedValue(Operation op, string arg, Func<TestDb, IQueryable<TestEntityFluent>> expected) =>
+            fixture.RunTest<TestEntityFluent>(async (db, qb, deps) =>
+            {
+                var res = qb.GetFrom(
+                    new Query(Filters: new FilterComposition(
+                        CompositionOp.And,
+                        filters: new[] { new Filter(op, nameof(TestEntityFluent.Abs), arg) }
+                    )));
 
                 var resEntries = (await res.ToListAsync()).Select(Simplify).ToArray();
                 var expEntries = (await expected(db).OrderBy(x => x.Id).ToListAsync()).Select(Simplify).ToArray();
@@ -46,16 +56,17 @@ namespace Qgen.Tests.Fixtures
         [Theory]
         [MemberData(nameof(ErroneousSimpleOperatorsCases))]
         public Task TestSimpleOperatorsForErrors(Operation op, string arg) =>
-            fixture.RunTest<TestEntityFluent>(async (db, qb, deps) =>
+            fixture.RunTest<TestEntityFluent>((db, qb, deps) =>
             {
                 new Action(() => qb.GetFrom(
                     new Query(Filters: new FilterComposition
-                    {
-                        Op = CompositionOp.And,
-                        Filters = new[] {
-                        new Filter(op, nameof(TestEntityFluent.Amount), arg) }
-                    })))
+                    (
+                        CompositionOp.And,
+                        filters: new[] { new Filter(op, nameof(TestEntityFluent.Amount), arg) }
+                    ))))
                 .Should().Throw<Exception>();
+
+                return Task.CompletedTask;
             });
 
         private static IEnumerable<object[]> SimpleOperatorsCases()
@@ -69,8 +80,8 @@ namespace Qgen.Tests.Fixtures
                 SimpleCase(Operation.GrEq, "12", d => d.EntitiesF.Where(x=>x.Amount >= 12)),
                 SimpleCase(Operation.Lt, "12", d => d.EntitiesF.Where(x=>x.Amount < 12)),
                 SimpleCase(Operation.LtEq, "12", d => d.EntitiesF.Where(x=>x.Amount <= 12)),
-                SimpleCase(Operation.In, "[12,13,14]", d => d.EntitiesF.Where(x=>arr.Contains(x.Amount.Value))),
-                SimpleCase(Operation.NotIn, "[12,13,14]", d => d.EntitiesF.Where(x=>!arr.Contains(x.Amount.Value))),
+                SimpleCase(Operation.In, "[12,13,14]", d => d.EntitiesF.Where(x=>arr.Contains(x.Amount!.Value))),
+                SimpleCase(Operation.NotIn, "[12,13,14]", d => d.EntitiesF.Where(x=>!arr.Contains(x.Amount!.Value))),
                 SimpleCase(Operation.InRange, "[12,14]", d => d.EntitiesF.Where(x=>12<= x.Amount && x.Amount <= 14)),
                 SimpleCase(Operation.NotInRange, "[12,14]", d => d.EntitiesF.Where(x=>!(12<=x.Amount && x.Amount <= 14))),
                 SimpleCase(Operation.Eq, "-12", d => d.EntitiesF.Where(x=>x.Amount == -12)),
@@ -79,10 +90,40 @@ namespace Qgen.Tests.Fixtures
                 SimpleCase(Operation.GrEq, "-12", d => d.EntitiesF.Where(x=>x.Amount >= -12)),
                 SimpleCase(Operation.Lt, "-12", d => d.EntitiesF.Where(x=>x.Amount < -12)),
                 SimpleCase(Operation.LtEq, "-12", d => d.EntitiesF.Where(x=>x.Amount <= -12)),
-                SimpleCase(Operation.In, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>arrN.Contains(x.Amount.Value))),
-                SimpleCase(Operation.NotIn, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>!arrN.Contains(x.Amount.Value))),
+                SimpleCase(Operation.In, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>arrN.Contains(x.Amount!.Value))),
+                SimpleCase(Operation.NotIn, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>!arrN.Contains(x.Amount!.Value))),
                 SimpleCase(Operation.InRange, "[-14,-12]", d => d.EntitiesF.Where(x=>-14<= x.Amount && x.Amount <= -12)),
                 SimpleCase(Operation.NotInRange, "[-14,-12]", d => d.EntitiesF.Where(x=>!(-14<=x.Amount && x.Amount <= -12))),
+                SimpleCase(Operation.In, "[]", d => d.EntitiesF.Where(x => false)),
+                SimpleCase(Operation.NotIn, "[]", d => d.EntitiesF.Where(x => true)),
+            };
+        }
+
+        private static IEnumerable<object[]> SimpleAbsOperatorsCases()
+        {
+            var arr = new[] { 12, 13, 14 };
+            var arrN = new[] { -12, -13, -14 };
+            return new object[][] {
+                SimpleCase(Operation.Eq, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) == 12)),
+                SimpleCase(Operation.Neq, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) != 12)),
+                SimpleCase(Operation.Gr, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) > 12)),
+                SimpleCase(Operation.GrEq, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) >= 12)),
+                SimpleCase(Operation.Lt, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) < 12)),
+                SimpleCase(Operation.LtEq, "12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) <= 12)),
+                SimpleCase(Operation.In, "[12,13,14]", d => d.EntitiesF.Where(x=>arr.Contains(Math.Abs(x.Abs.Value)))),
+                SimpleCase(Operation.NotIn, "[12,13,14]", d => d.EntitiesF.Where(x=>!arr.Contains(Math.Abs(x.Abs.Value)))),
+                SimpleCase(Operation.InRange, "[12,14]", d => d.EntitiesF.Where(x=>12<= Math.Abs(x.Abs.Value) && Math.Abs(x.Abs.Value) <= 14)),
+                SimpleCase(Operation.NotInRange, "[12,14]", d => d.EntitiesF.Where(x=>!(12<=Math.Abs(x.Abs.Value) && Math.Abs(x.Abs.Value) <= 14))),
+                SimpleCase(Operation.Eq, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) == -12)),
+                SimpleCase(Operation.Neq, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) != -12)),
+                SimpleCase(Operation.Gr, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) > -12)),
+                SimpleCase(Operation.GrEq, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) >= -12)),
+                SimpleCase(Operation.Lt, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) < -12)),
+                SimpleCase(Operation.LtEq, "-12", d => d.EntitiesF.Where(x=>Math.Abs(x.Abs.Value) <= -12)),
+                SimpleCase(Operation.In, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>arrN.Contains(Math.Abs(x.Abs.Value)))),
+                SimpleCase(Operation.NotIn, "[-12,-13,-14]", d => d.EntitiesF.Where(x=>!arrN.Contains(Math.Abs(x.Abs.Value)))),
+                SimpleCase(Operation.InRange, "[-14,-12]", d => d.EntitiesF.Where(x=>-14<= Math.Abs(x.Abs.Value) && Math.Abs(x.Abs.Value) <= -12)),
+                SimpleCase(Operation.NotInRange, "[-14,-12]", d => d.EntitiesF.Where(x=>!(-14<=Math.Abs(x.Abs.Value) && Math.Abs(x.Abs.Value) <= -12))),
                 SimpleCase(Operation.In, "[]", d => d.EntitiesF.Where(x => false)),
                 SimpleCase(Operation.NotIn, "[]", d => d.EntitiesF.Where(x => true)),
             };
@@ -105,7 +146,7 @@ namespace Qgen.Tests.Fixtures
         private static string Simplify(TestEntityFluent t) => $"{t.Amount}";
 
         private static TestEntityFluent[] PrepareData() => Enumerable.Range(-32, 64)
-                .Select(i => new TestEntityFluent { Id = Guid.NewGuid(), Amount = i })
+                .Select(i => new TestEntityFluent { Id = Guid.NewGuid(), Amount = i, Abs = i })
                 .ToArray();
     }
 }
