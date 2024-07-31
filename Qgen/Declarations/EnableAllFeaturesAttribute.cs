@@ -1,6 +1,6 @@
 namespace Qgen.Declarations
 {
-    [System.AttributeUsage(System.AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class EnableAllFeaturesAttribute : EnableFeaturesAttribute
     {
         public EnableAllFeaturesAttribute(DefaultSorting defaultSortingDirection = DefaultSorting.None)

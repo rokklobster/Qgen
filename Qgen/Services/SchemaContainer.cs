@@ -1,8 +1,8 @@
-﻿using Qgen.Contracts.Services;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using Qgen.Contracts.Models;
+using Qgen.Contracts.Services;
 using static System.Linq.Expressions.Expression;
 using static Qgen.Services.Expressions;
-using Qgen.Contracts.Models;
 
 namespace Qgen.Services
 {

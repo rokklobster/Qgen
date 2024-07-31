@@ -1,6 +1,6 @@
 ﻿namespace Qgen.Declarations
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class RequiresSchemaAttribute : Attribute
     {
 

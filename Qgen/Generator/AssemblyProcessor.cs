@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -79,7 +74,7 @@ public class AssemblyProcessor
             var slice = str.Substring(0, Math.Min(24, str.Length));
             Debugger.Log(0, "", $"{node.Kind()} | {node.Identifier} | text: '{slice}' \n");
 
-            foreach (var p in node.DescendantNodes(n => true)
+            foreach (var p in node.DescendantNodes()
                 .OfType<PropertyDeclarationSyntax>())
             {
                 Debugger.Log(0, "", $"{p.Identifier} | {p.AttributeLists.Count} | {string.Join(" + ", p.AttributeLists.SelectMany(x => x.Attributes).Where(x => x.GetText().ToString().Contains("Enable")).Select(x => x.GetText().ToString()))}\n");
@@ -104,11 +99,9 @@ public class AssemblyProcessor
 {3}
             ManualRegister();
         }}
-
-        partial void ManualRegister();
     }}
 }}",
-        generatedNamespace, repoName, DefaultRepoTypeName, sb2.ToString());
+        generatedNamespace, repoName, DefaultRepoTypeName, sb2);
 
         registerSource(repoName + ".g.cs", sb.ToString());
     }
@@ -137,7 +130,7 @@ namespace {0} {{
 ",
         generatedNamespace, name, SchemaTFullName, SchemaBuilderFullName, target, ns);
 
-        foreach (var p in st.DescendantNodes(_ => true).Where(IsPropertySuitableForRegistering).OfType<PropertyDeclarationSyntax>())
+        foreach (var p in st.DescendantNodes().Where(IsPropertySuitableForRegistering).OfType<PropertyDeclarationSyntax>())
         {
             var attrs = p.AttributeLists.SelectMany(x => x.Attributes);
             // todo: schema builder:

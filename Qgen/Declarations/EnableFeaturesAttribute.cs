@@ -4,7 +4,7 @@
         None, Asc, Desc
     }
 
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class EnableFeaturesAttribute : Attribute
     {
         public bool EnableFiltering { get; set; }

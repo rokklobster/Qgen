@@ -12,7 +12,7 @@ namespace Qgen.Services.Internal
             var first = true;
             IOrderedQueryable<T> res = null!;
             orderBy ??= Array.Empty<Ordering>();
-            foreach (var (asc, tf) in orderBy.Append(schema.DefaultOrdering).Select(x => (asc: x.Ascending, tf: CreateSelector<T>(x, schema)))
+            foreach (var (asc, tf) in orderBy.Append(schema.DefaultOrdering).Select(x => (asc: x.Ascending, tf: CreateSelector(x, schema)))
                 .Where(x => x.tf is not null))
             {
                 if (first)

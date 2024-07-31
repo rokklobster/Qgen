@@ -1,16 +1,15 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using static System.Linq.Expressions.Expression;
 
 namespace Qgen.Services
 {
     public static class Expressions
     {
-        public static readonly Expression True = Expression.Constant(true);
-        public static readonly Expression False = Expression.Constant(false);
-        public static readonly Expression Null = Expression.Constant(null);
+        public static readonly Expression True = Constant(true);
+        public static readonly Expression False = Constant(false);
+        public static readonly Expression Null = Constant(null);
 
         public static string NullableValue = nameof(Nullable<int>.Value);
         public static string NullableHasValue = nameof(Nullable<int>.HasValue);
@@ -19,7 +18,7 @@ namespace Qgen.Services
             .First(x => x.Name == $"{nameof(Enumerable.Contains)}" && x.GetParameters().Length == 2);
 
         public static readonly MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!;
-        public static readonly MethodInfo ObjectToStringMethod = typeof(object).GetMethod(nameof(object.ToString))!;
+        public static readonly MethodInfo ObjectToStringMethod = typeof(object).GetMethod(nameof(ToString))!;
 
         public static bool IsEnumerableType(Type t) =>
             typeof(IEnumerable).IsAssignableFrom(t);

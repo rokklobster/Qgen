@@ -3,11 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Qgen.Contracts.Models;
 using Qgen.Tests.System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Qgen.Tests.Fixtures
 {
@@ -29,7 +24,7 @@ namespace Qgen.Tests.Fixtures
         [Theory]
         [MemberData(nameof(SimpleOperatorsCases))]
         public Task TestSimpleOperators(Operation op, string arg, Func<TestDb, IQueryable<TestEntityFluent>> expected) =>
-            fixture.RunTest<TestEntityFluent>(async (db, qb, deps) =>
+            fixture.RunTest<TestEntityFluent>(async (db, qb, _) =>
             {
                 var res = qb.GetFrom(
                     new Query(Filters: new FilterComposition
@@ -49,7 +44,8 @@ namespace Qgen.Tests.Fixtures
         {
             var arr = new[] { "000101", "000110", "000111" };
             var arrArg = JsonConvert.SerializeObject(arr);
-            return new object[][] {
+            return new[]
+            {
                 SimpleCase(Operation.Eq, "000101", d => d.EntitiesF.Where(x=>x.Name == "000101")),
                 SimpleCase(Operation.Neq, "000101", d => d.EntitiesF.Where(x=>x.Name != "000101")),
                 SimpleCase(Operation.In, arrArg, d => d.EntitiesF.Where(x=>arr.Contains(x.Name))),

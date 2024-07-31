@@ -1,5 +1,4 @@
-﻿using Qgen.Contracts.Services;
-using Qgen.Services;
+﻿using Qgen.Services;
 
 namespace Qgen.Tests.System
 {

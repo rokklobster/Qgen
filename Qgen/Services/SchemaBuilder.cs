@@ -1,7 +1,8 @@
-﻿using Qgen.Contracts.Services;
-using Qgen.Services.Internal;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
+using Qgen.Contracts.Models;
+using Qgen.Contracts.Services;
+using Qgen.Services.Internal;
 using static System.Linq.Expressions.Expression;
 using static Qgen.Services.Expressions;
 
@@ -28,7 +29,7 @@ namespace Qgen.Services
             var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
                 ? p.Name
                 : throw new InvalidOperationException("Only property reads are supported");
-            result.DefaultOrdering ??= new Contracts.Models.Ordering(name, asc);
+            result.DefaultOrdering ??= new Ordering(name, asc);
             return this;
         }
 
@@ -42,11 +43,11 @@ namespace Qgen.Services
 
             internal FieldBuilder(FieldSchema s, Customizations cust, string name, SchemaContainer<T> result, PropertyInfo p)
             {
-                this.fieldSchema = s;
+                fieldSchema = s;
                 this.cust = cust;
                 this.name = name;
-                this.typeSchema = result;
-                this.property = p;
+                typeSchema = result;
+                property = p;
             }
 
             public FieldBuilder<F> Disable(bool filtering = false, bool searching = false, bool sorting = false, bool grouping = false)

@@ -1,5 +1,5 @@
-﻿using Qgen.Contracts.Models;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using Qgen.Contracts.Models;
 
 namespace Qgen.Contracts.Services
 {
