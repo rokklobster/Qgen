@@ -1,6 +1,6 @@
 ﻿using Qgen.Declarations;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.DB
 {
     [RequiresSchema]
     public class TestEntityDecl

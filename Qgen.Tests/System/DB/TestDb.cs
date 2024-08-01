@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿#nullable disable
 
-namespace Qgen.Tests.System
+using Microsoft.EntityFrameworkCore;
+
+namespace Qgen.Tests.System.DB
 {
     public class TestDb : DbContext
     {

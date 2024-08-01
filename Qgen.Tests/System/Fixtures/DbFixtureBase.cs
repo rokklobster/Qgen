@@ -1,6 +1,8 @@
 ﻿using Qgen.Services;
+using Qgen.Tests.System.DB;
+using Qgen.Tests.System.Impls;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Fixtures
 {
     public abstract class DbFixtureBase : IAsyncLifetime
     {

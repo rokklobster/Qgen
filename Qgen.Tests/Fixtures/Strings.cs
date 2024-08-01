@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Qgen.Contracts.Models;
 using Qgen.Tests.System;
+using Qgen.Tests.System.DB;
+using Qgen.Tests.System.Fixtures;
+using Qgen.Tests.System.Impls;
 
 namespace Qgen.Tests.Fixtures
 {

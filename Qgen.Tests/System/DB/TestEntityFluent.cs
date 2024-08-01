@@ -1,7 +1,8 @@
 ﻿using Qgen.Contracts.Services;
 using Qgen.Services;
+using Qgen.Tests.System.Impls;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.DB
 {
     public class TestEntityFluent
     {

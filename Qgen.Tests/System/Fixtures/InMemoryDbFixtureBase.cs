@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Qgen.Tests.System.DB;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Fixtures
 {
     public class InMemoryDbFixtureBase : DbFixtureBase
     {

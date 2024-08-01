@@ -1,8 +1,8 @@
 ﻿using Qgen.Contracts.Services;
 using Qgen.Services;
-using Qgen.Tests.Generated.Schema;
+using Qgen.Tests.System.DB;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Impls
 {
     public class Dependencies
     {
@@ -18,7 +18,7 @@ namespace Qgen.Tests.System
         {
             Db = db;
             SetProvider=new DbSetProvider(db);
-            Repo = QgenTestsRepo.Instance;
+            Repo = Generated.Schema.QgenTestsRepo.Instance;
         }
     }
 }

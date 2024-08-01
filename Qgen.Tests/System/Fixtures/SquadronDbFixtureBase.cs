@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Qgen.Tests.System.DB;
 using Squadron;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Fixtures
 {
     public class SquadronDbFixtureBase : DbFixtureBase
     {

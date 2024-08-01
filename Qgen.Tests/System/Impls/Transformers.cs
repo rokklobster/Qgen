@@ -2,7 +2,7 @@
 using static System.Linq.Expressions.Expression;
 using static Qgen.Services.Expressions;
 
-namespace Qgen.Tests;
+namespace Qgen.Tests.System.Impls;
 
 public static class Transformers
 {

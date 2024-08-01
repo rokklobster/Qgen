@@ -1,7 +1,7 @@
 ﻿using Qgen.Services;
-using Qgen.Tests.System;
+using Qgen.Tests.System.DB;
 
-namespace Qgen.Tests.Generated.Schema
+namespace Qgen.Tests.System.Impls
 {
     public partial class QgenTestsRepo: DefaultSchemaRepo
     {

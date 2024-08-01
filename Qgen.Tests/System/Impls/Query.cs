@@ -1,6 +1,6 @@
 ﻿using Qgen.Contracts.Models;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Impls
 {
     public record Query(
         string[]? Include = null,

@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Qgen.Contracts.Models;
-using Qgen.Tests.System;
+using Qgen.Tests.System.DB;
+using Qgen.Tests.System.Fixtures;
+using Qgen.Tests.System.Impls;
 
 namespace Qgen.Tests.Fixtures
 {
@@ -106,6 +108,7 @@ namespace Qgen.Tests.Fixtures
             };
         }
 
+#pragma warning disable CS8629
         private static IEnumerable<object[]> SimpleAbsOperatorsCases()
         {
             var arr = new[] { 12, 13, 14 };
@@ -144,10 +147,10 @@ namespace Qgen.Tests.Fixtures
                 SimpleCase(Operation.NotIn, "[]", d => d.EntitiesF.Where(x => true)),
             };
         }
+#pragma warning restore CS8629
 
         private static IEnumerable<object[]> ErroneousSimpleOperatorsCases()
         {
-            var arr = new[] { 12, 13, 14 };
             return new[]
             {
                 SimpleCase(Operation.Contains, "12"),

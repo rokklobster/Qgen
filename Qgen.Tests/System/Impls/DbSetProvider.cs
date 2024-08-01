@@ -1,6 +1,7 @@
 ﻿using Qgen.Contracts.Services;
+using Qgen.Tests.System.DB;
 
-namespace Qgen.Tests.System
+namespace Qgen.Tests.System.Impls
 {
     public class DbSetProvider : SetProvider
     {
