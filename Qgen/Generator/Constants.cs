@@ -6,6 +6,8 @@ namespace Qgen.Generator;
 
 public static class Constants
 {
+    public static string SchemaRepoTypeName = typeof(SchemaRepo).FullName;
+
     public static readonly Type SchemaTType = typeof(Schema<>);
     public static readonly string SchemaTFullName = SchemaTType.FullName.Substring(0, SchemaTType.FullName.IndexOf('`'));
 

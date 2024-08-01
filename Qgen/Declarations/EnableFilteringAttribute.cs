@@ -1,11 +1,10 @@
-﻿namespace Qgen.Declarations
+﻿namespace Qgen.Declarations;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class EnableFilteringAttribute : EnableFeaturesAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class EnableFilteringAttribute : EnableFeaturesAttribute
+    public EnableFilteringAttribute()
     {
-        public EnableFilteringAttribute()
-        {
-            EnableFiltering = true;
-        }
+        EnableFiltering = true;
     }
 }

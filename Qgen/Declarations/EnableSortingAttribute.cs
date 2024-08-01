@@ -1,12 +1,11 @@
-﻿namespace Qgen.Declarations
+﻿namespace Qgen.Declarations;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class EnableSortingAttribute : EnableFeaturesAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class EnableSortingAttribute : EnableFeaturesAttribute
+    public EnableSortingAttribute(DefaultSorting defaultSortingField = DefaultSorting.None)
     {
-        public EnableSortingAttribute(DefaultSorting defaultSortingField = DefaultSorting.None)
-        {
-            EnableSorting = true;
-            DefaultSortingDirection = defaultSortingField;
-        }
+        EnableSorting = true;
+        DefaultSortingDirection = defaultSortingField;
     }
 }

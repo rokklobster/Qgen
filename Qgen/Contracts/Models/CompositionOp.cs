@@ -1,14 +1,13 @@
-﻿namespace Qgen.Contracts.Models
+﻿namespace Qgen.Contracts.Models;
+
+public enum CompositionOp
 {
-    public enum CompositionOp
-    {
-        /// <summary>
-        /// all filters should pass
-        /// </summary>
-        And,
-        /// <summary>
-        /// any filter should pass
-        /// </summary>
-        Or
-    }
+    /// <summary>
+    /// all filters should pass
+    /// </summary>
+    And,
+    /// <summary>
+    /// any filter should pass
+    /// </summary>
+    Or
 }

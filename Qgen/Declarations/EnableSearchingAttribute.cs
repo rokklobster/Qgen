@@ -1,11 +1,10 @@
-﻿namespace Qgen.Declarations
+﻿namespace Qgen.Declarations;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class EnableSearchingAttribute : EnableFeaturesAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class EnableSearchingAttribute : EnableFeaturesAttribute
+    public EnableSearchingAttribute()
     {
-        public EnableSearchingAttribute()
-        {
-            EnableSearching = true;
-        }
+        EnableSearching = true;
     }
 }

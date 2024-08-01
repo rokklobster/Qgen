@@ -1,11 +1,10 @@
-﻿namespace Qgen.Declarations
+﻿namespace Qgen.Declarations;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class EnableGroupingAttribute : EnableFeaturesAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class EnableGroupingAttribute : EnableFeaturesAttribute
+    public EnableGroupingAttribute()
     {
-        public EnableGroupingAttribute()
-        {
-            EnableGrouping = true;
-        }
+        EnableGrouping = true;
     }
 }

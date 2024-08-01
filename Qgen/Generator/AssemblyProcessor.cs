@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Qgen.Declarations;
+using Qgen.Services.Internal;
 using static Qgen.Generator.Constants;
 
 namespace Qgen.Generator;
@@ -40,9 +41,19 @@ public class AssemblyProcessor
             foreach (var n in allClasses)
             {
                 var ns = node.DescendantNodes()
-                    .OfType<NamespaceDeclarationSyntax>()
-                    .Single()
-                    .Name.ToString();
+                    .Where(n => n.IsKind(SyntaxKind.NamespaceDeclaration) || n.IsKind(SyntaxKind.FileScopedNamespaceDeclaration))
+                    .Select(n => (n as NamespaceDeclarationSyntax)?.Name ?? (n as FileScopedNamespaceDeclarationSyntax)?.Name)
+                    .Pipe(c =>
+                    {
+                        try { return c.Single(); }
+                        catch (InvalidOperationException e) when (e.Message.Contains("Sequence contains"))
+                        {
+                            throw new InvalidOperationException("Generator requires annotated classes to be present in files containing only one namespace", e);
+                        }
+                    })
+                    ?.ToString();
+
+                if (ns is null) continue;
 
                 CreateSchema(n, ns);
             }
@@ -93,7 +104,7 @@ public class AssemblyProcessor
         sb.AppendFormat(@"namespace {0} {{
     public partial class {1} : {2} {{
         private static readonly Lazy<{1}> instance = new Lazy<{1}>();
-        public static {1} Instance => instance.Value;
+        public static {4} Instance => instance.Value;
 
         public {1}() {{
 {3}
@@ -101,7 +112,7 @@ public class AssemblyProcessor
         }}
     }}
 }}",
-        generatedNamespace, repoName, DefaultRepoTypeName, sb2);
+        generatedNamespace, repoName, DefaultRepoTypeName, sb2, SchemaRepoTypeName);
 
         registerSource(repoName + ".g.cs", sb.ToString());
     }
@@ -164,11 +175,12 @@ namespace {0} {{
             sb.AppendFormat("\t\t\tres.{0}(t => t.{1}).{2}();\n",
                 SbldRegisterField, propName, SbldEnableAll);
 
-            if (a.ArgumentList?.Arguments.Select(x => x.GetText().ToString()).First(x => !x.Contains(nameof(DefaultSorting.None))) is {} s)
+            if (a.ArgumentList?.Arguments.Select(x => x.GetText().ToString()).First(x => !x.Contains(nameof(DefaultSorting.None))) is { } s)
                 sb.AppendFormat("\t\t\tres.{0}(t => t.{1}, {2});\n",
                 AddDefaultSort, propName, s.Contains(nameof(DefaultSorting.Asc)).ToString().ToLower());
         }
-        else {
+        else
+        {
             AttributeSyntax?
               filter = GetSingleContaining(attrNames, EnableFilteringNames),
               search = GetSingleContaining(attrNames, EnableSearchingNames),

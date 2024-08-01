@@ -6,114 +6,113 @@ using Qgen.Services.Internal;
 using static System.Linq.Expressions.Expression;
 using static Qgen.Services.Expressions;
 
-namespace Qgen.Services
+namespace Qgen.Services;
+
+public class SchemaBuilder<T>
 {
-    public class SchemaBuilder<T>
+    private readonly SchemaContainer<T> result = new();
+
+    public Schema<T> Result => result;
+
+    public FieldBuilder<F> RegisterField<F>(Expression<Func<T, F>> prop)
     {
-        private readonly SchemaContainer<T> result = new();
+        var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
+            ? p.Name
+            : throw new InvalidOperationException("Only property reads are supported");
+        var schema = result.schemata.GetOrAdd(name, () => new(p.PropertyType));
+        var cust = result.customizations.GetOrAdd(name, () => new());
+        return new FieldBuilder<F>(schema, cust, name, result, p);
+    }
 
-        public Schema<T> Result => result;
+    public SchemaBuilder<T> AddDefaultOrderingLayer<F>(Expression<Func<T, F>> prop, bool asc)
+    {
+        var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
+            ? p.Name
+            : throw new InvalidOperationException("Only property reads are supported");
+        result.DefaultOrdering ??= new Ordering(name, asc);
+        return this;
+    }
 
-        public FieldBuilder<F> RegisterField<F>(Expression<Func<T, F>> prop)
+    public class FieldBuilder<F>
+    {
+        private readonly FieldSchema fieldSchema;
+        private readonly Customizations cust;
+        private readonly string name;
+        private readonly SchemaContainer<T> typeSchema;
+        private readonly PropertyInfo property;
+
+        internal FieldBuilder(FieldSchema s, Customizations cust, string name, SchemaContainer<T> result, PropertyInfo p)
         {
-            var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
-                ? p.Name
-                : throw new InvalidOperationException("Only property reads are supported");
-            var schema = result.schemata.GetOrAdd(name, () => new(p.PropertyType));
-            var cust = result.customizations.GetOrAdd(name, () => new());
-            return new FieldBuilder<F>(schema, cust, name, result, p);
+            fieldSchema = s;
+            this.cust = cust;
+            this.name = name;
+            typeSchema = result;
+            property = p;
         }
 
-        public SchemaBuilder<T> AddDefaultOrderingLayer<F>(Expression<Func<T, F>> prop, bool asc)
+        public FieldBuilder<F> Disable(bool filtering = false, bool searching = false, bool sorting = false, bool grouping = false)
         {
-            var name = prop.Body is MemberExpression mx && mx.Member is PropertyInfo p
-                ? p.Name
-                : throw new InvalidOperationException("Only property reads are supported");
-            result.DefaultOrdering ??= new Ordering(name, asc);
+            if (filtering) fieldSchema.Filter = null;
+            if (searching) fieldSchema.Search = null;
+            if (sorting) fieldSchema.Sort = null;
+            if (grouping) fieldSchema.Group = null;
+
             return this;
         }
 
-        public class FieldBuilder<F>
+        public FieldBuilder<F> DisableAll() => Disable(true, true, true, true);
+        public FieldBuilder<F> EnableAll() => Enable(true, true, true, true);
+
+        public FieldBuilder<F> Enable(bool filtering = false, bool searching = false, bool sorting = false, bool grouping = false)
         {
-            private readonly FieldSchema fieldSchema;
-            private readonly Customizations cust;
-            private readonly string name;
-            private readonly SchemaContainer<T> typeSchema;
-            private readonly PropertyInfo property;
+            if (filtering) EnableFiltering();
+            if (searching) EnableSearching();
+            if (sorting) EnableSorting();
+            if (grouping) EnableGrouping();
 
-            internal FieldBuilder(FieldSchema s, Customizations cust, string name, SchemaContainer<T> result, PropertyInfo p)
-            {
-                fieldSchema = s;
-                this.cust = cust;
-                this.name = name;
-                typeSchema = result;
-                property = p;
-            }
+            return this;
+        }
 
-            public FieldBuilder<F> Disable(bool filtering = false, bool searching = false, bool sorting = false, bool grouping = false)
-            {
-                if (filtering) fieldSchema.Filter = null;
-                if (searching) fieldSchema.Search = null;
-                if (sorting) fieldSchema.Sort = null;
-                if (grouping) fieldSchema.Group = null;
+        public FieldBuilder<F> EnableFiltering(Func<Expression, Expression>? customAccess = null)
+        {
+            fieldSchema.Filter = px => Property(px, property);
+            cust.Filter = customAccess;
+            return this;
+        }
 
-                return this;
-            }
+        public FieldBuilder<F> EnableSorting(Func<Expression, Expression>? customAccess = null)
+        {
+            fieldSchema.Sort = px => Property(px, property);
+            cust.Filter = customAccess;
+            return this;
+        }
 
-            public FieldBuilder<F> DisableAll() => Disable(true, true, true, true);
-            public FieldBuilder<F> EnableAll() => Enable(true, true, true, true);
+        public FieldBuilder<F> EnableGrouping(Func<Expression, Expression>? customAccess = null)
+        {
+            fieldSchema.Group = px => Call(Property(px, property), ObjectToStringMethod);
+            cust.Filter = customAccess;
+            return this;
+        }
 
-            public FieldBuilder<F> Enable(bool filtering = false, bool searching = false, bool sorting = false, bool grouping = false)
-            {
-                if (filtering) EnableFiltering();
-                if (searching) EnableSearching();
-                if (sorting) EnableSorting();
-                if (grouping) EnableGrouping();
+        public FieldBuilder<F> EnableSearching(Func<Expression, Expression>? customAccess = null)
+        {
+            fieldSchema.Search =
+                property.PropertyType == typeof(string)
+                ? (px => Property(px, property))
+                : (px => Call(Property(px, property), ObjectToStringMethod));
+            cust.Filter = customAccess;
+            return this;
+        }
 
-                return this;
-            }
-
-            public FieldBuilder<F> EnableFiltering(Func<Expression, Expression>? customAccess = null)
-            {
-                fieldSchema.Filter = px => Property(px, property);
-                cust.Filter = customAccess;
-                return this;
-            }
-
-            public FieldBuilder<F> EnableSorting(Func<Expression, Expression>? customAccess = null)
-            {
-                fieldSchema.Sort = px => Property(px, property);
-                cust.Filter = customAccess;
-                return this;
-            }
-
-            public FieldBuilder<F> EnableGrouping(Func<Expression, Expression>? customAccess = null)
-            {
-                fieldSchema.Group = px => Call(Property(px, property), ObjectToStringMethod);
-                cust.Filter = customAccess;
-                return this;
-            }
-
-            public FieldBuilder<F> EnableSearching(Func<Expression, Expression>? customAccess = null)
-            {
-                fieldSchema.Search =
-                    property.PropertyType == typeof(string)
-                    ? (px => Property(px, property))
-                    : (px => Call(Property(px, property), ObjectToStringMethod));
-                cust.Filter = customAccess;
-                return this;
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="transformer">Function of signature property -> query -> search result</param>
-            /// <returns></returns>
-            public FieldBuilder<F> UseCustomSearch(Func<Expression, Expression, Expression> transformer)
-            {
-                typeSchema.customSearchTransformers[name] = transformer;
-                return this;
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transformer">Function of signature property -> query -> search result</param>
+        /// <returns></returns>
+        public FieldBuilder<F> UseCustomSearch(Func<Expression, Expression, Expression> transformer)
+        {
+            typeSchema.customSearchTransformers[name] = transformer;
+            return this;
         }
     }
 }
