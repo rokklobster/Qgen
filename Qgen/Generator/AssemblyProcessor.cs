@@ -172,19 +172,18 @@ namespace {0} {{
             if (filter is null && search is null && sort is null && group is null) return;
 
             sb.AppendFormat("\t\t\tres.{0}(t => t.{1})", SbldRegisterField, propName);
-            // todo: consider customizations
 
             if (filter is not null)
                 sb.AppendFormat("\n\t\t\t\t.{0}({1})", SbldEnableFilter, GetArgs(filter));
 
             if (search is not null)
-                sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableSearch);
+                sb.AppendFormat("\n\t\t\t\t.{0}({1})", SbldEnableSearch, GetArgs(search));
 
             if (sort is not null)
-                sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableSort);
+                sb.AppendFormat("\n\t\t\t\t.{0}({1})", SbldEnableSort, GetArgs(sort));
 
             if (group is not null)
-                sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableGroup);
+                sb.AppendFormat("\n\t\t\t\t.{0}({1})", SbldEnableGroup, GetArgs(group));
 
             sb.AppendLine(";");
         }

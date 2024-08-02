@@ -7,10 +7,6 @@ public class SchemaGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-        // todo: enumerate types; find ones decorated with RequiresSchema; parse all decorated props;
-        // generate schema using SchemaBuilder; generate schema repo derived from DefaultSchemaRepo;
-        // in ctor, collect all schemata
-
 #if DEBUG
          if (!System.Diagnostics.Debugger.IsAttached)
              System.Diagnostics.Debugger.Launch();
