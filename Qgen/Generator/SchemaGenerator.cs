@@ -12,8 +12,8 @@ public class SchemaGenerator : ISourceGenerator
         // in ctor, collect all schemata
 
 #if DEBUG
-        if (!System.Diagnostics.Debugger.IsAttached)
-            System.Diagnostics.Debugger.Launch();
+         if (!System.Diagnostics.Debugger.IsAttached)
+             System.Diagnostics.Debugger.Launch();
 #endif
 
         var processor = new AssemblyProcessor(context.Compilation, context.AddSource);

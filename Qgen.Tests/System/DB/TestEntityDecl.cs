@@ -1,4 +1,5 @@
 ﻿using Qgen.Declarations;
+using Qgen.Tests.System.Impls;
 
 namespace Qgen.Tests.System.DB;
 
@@ -11,7 +12,7 @@ public class TestEntityDecl
     [EnableAllFeatures]
     public string? Name { get; set; }
 
-    [EnableFiltering]
+    [EnableFiltering(nameof(Transformers.Abs), typeof(Transformers))]
     [EnableSearching]
     [EnableGrouping]
     public int Code { get; set; }

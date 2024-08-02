@@ -1,9 +1,5 @@
 ﻿namespace Qgen.Declarations;
 
-public enum DefaultSorting {
-    None, Asc, Desc
-}
-
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class EnableFeaturesAttribute : Attribute
 {
@@ -18,4 +14,9 @@ public class EnableFeaturesAttribute : Attribute
     /// only one property should have this set to non-null.
     /// </summary>
     public DefaultSorting DefaultSortingDirection { get; set; }
+
+    public CustomMethod? FilterReader {get;set;}
+    public CustomMethod? SortReader {get;set;}
+    public CustomMethod? SearchReader {get;set;}
+    public CustomMethod? GroupReader {get;set;}
 }

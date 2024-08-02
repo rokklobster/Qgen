@@ -52,10 +52,11 @@ public class AssemblyProcessor
                         }
                     })
                     ?.ToString();
+                var usings = node.DescendantNodes().OfType<UsingDirectiveSyntax>().Select(x => x.ToString()).Pipe(string.Join, "\n");
 
                 if (ns is null) continue;
 
-                CreateSchema(n, ns);
+                CreateSchema(n, ns, usings);
             }
         }
 
@@ -75,23 +76,6 @@ public class AssemblyProcessor
             return false;
         var flatAttrs = pds.AttributeLists.SelectMany(x => x.Attributes).Select(x => x.GetText().ToString()).ToArray();
         return flatAttrs.Any(x => x.Contains("Enable"));
-    }
-
-    private void LogClass(ClassDeclarationSyntax node)
-    {
-        if (Debugger.IsLogging())
-        {
-            var str = node.GetText().ToString();
-            var slice = str.Substring(0, Math.Min(24, str.Length));
-            Debugger.Log(0, "", $"{node.Kind()} | {node.Identifier} | text: '{slice}' \n");
-
-            foreach (var p in node.DescendantNodes()
-                .OfType<PropertyDeclarationSyntax>())
-            {
-                Debugger.Log(0, "", $"{p.Identifier} | {p.AttributeLists.Count} | {string.Join(" + ", p.AttributeLists.SelectMany(x => x.Attributes).Where(x => x.GetText().ToString().Contains("Enable")).Select(x => x.GetText().ToString()))}\n");
-            }
-        }
-
     }
 
     private void CreateRepo()
@@ -121,13 +105,14 @@ public class AssemblyProcessor
     /// generate schema, save name of schema to list, add file to output
     /// </summary>
     /// <param name="st"></param>
-    private void CreateSchema(ClassDeclarationSyntax st, string ns)
+    private void CreateSchema(ClassDeclarationSyntax st, string ns, string usings)
     {
         var sb = new StringBuilder();
         var name = st.Identifier + "SchemaContainer";
         var target = st.Identifier.ToString();
 
         sb.AppendFormat(@"
+{6}
 using {5};
 
 namespace {0} {{
@@ -139,14 +124,11 @@ namespace {0} {{
             var res = new {3}<{4}>();
 
 ",
-        generatedNamespace, name, SchemaTFullName, SchemaBuilderFullName, target, ns);
+        generatedNamespace, name, SchemaTFullName, SchemaBuilderFullName, target, ns, usings);
 
         foreach (var p in st.DescendantNodes().Where(IsPropertySuitableForRegistering).OfType<PropertyDeclarationSyntax>())
         {
             var attrs = p.AttributeLists.SelectMany(x => x.Attributes);
-            // todo: schema builder:
-            // - collect attributes, build flags list
-            // - 
             AddRegisteringExpressions(p, attrs, sb);
         }
 
@@ -189,19 +171,52 @@ namespace {0} {{
 
             if (filter is null && search is null && sort is null && group is null) return;
 
-            sb.AppendFormat("\t\t\tres.{0}(t => t.{1})",
-                SbldRegisterField, propName);
+            sb.AppendFormat("\t\t\tres.{0}(t => t.{1})", SbldRegisterField, propName);
+            // todo: consider customizations
+
             if (filter is not null)
-                sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableFilter);
+                sb.AppendFormat("\n\t\t\t\t.{0}({1})", SbldEnableFilter, GetArgs(filter));
+
             if (search is not null)
                 sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableSearch);
+
             if (sort is not null)
                 sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableSort);
+
             if (group is not null)
                 sb.AppendFormat("\n\t\t\t\t.{0}()", SbldEnableGroup);
+
             sb.AppendLine(";");
         }
     }
 
-    private AttributeSyntax? GetSingleContaining((AttributeSyntax, string)[] attrs, string[] targets) => attrs.SingleOrDefault(p => targets.Contains(p.Item2)).Item1;
+    private string GetArgs(AttributeSyntax a, params string[] args)
+    {
+        if (a.ArgumentList?.Arguments.Count > 0)
+        {
+            // expecting method and type
+            var attrArgs = a.ArgumentList.Arguments.Select(x => x.Expression).ToArray();
+
+            var res = attrArgs.Reverse()
+                .Select(x =>
+                {
+                    /*strip all unnecessary*/
+                    if (x is TypeOfExpressionSyntax tos)
+                        return tos.Type.ToString();
+                    else if (x is LiteralExpressionSyntax les)
+                        return x.ToString().Trim('"');
+                    else if (x is InvocationExpressionSyntax iex && iex.Expression is IdentifierNameSyntax ins && ins.Identifier.Text == "nameof")
+                        return iex.ArgumentList.Arguments[0].ToString().Pipe(s => s.Substring(s.LastIndexOf('.') + 1));
+                    return x.ToString();
+                })
+                .Pipe(string.Join, ".");
+
+            return res;
+        }
+
+        return "";
+    }
+
+    private AttributeSyntax? GetSingleContaining((AttributeSyntax, string)[] attrs, string[] targets) =>
+        attrs.SingleOrDefault(p => targets.Contains(p.Item2)).Item1;
 }
