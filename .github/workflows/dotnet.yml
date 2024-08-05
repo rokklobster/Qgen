@@ -11,9 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -24,5 +22,24 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+    - name: setup-docker
+      uses: docker-practice/actions-setup-docker@v1
+      with:
+        docker_cli_experimental: disabled
     - name: Test
       run: dotnet test --no-build --verbosity normal
+
+  pack:
+    if: contains(github.ref, 'master')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Pack
+      run: echo 'here comes dotnet publish...'
+    
