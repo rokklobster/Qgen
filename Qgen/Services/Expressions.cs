@@ -36,9 +36,9 @@ public static class Expressions
             ? type.GetGenericArguments()[0]
             : type;
 
-    public static MethodInfo? GetMethod<T>(string name, Func<MethodInfo, bool> filter) => GetMethod(typeof(T), name, filter);
+    public static MethodInfo? GetMethod<T>(string name, Func<MethodInfo, bool>? filter = null) => GetMethod(typeof(T), name, filter);
 
-    public static MethodInfo? GetMethod(Type t, string name, Func<MethodInfo, bool> filter) =>
+    public static MethodInfo? GetMethod(Type t, string name, Func<MethodInfo, bool>? filter = null) =>
         t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
         .Where(x => x.Name == name || x.Name.StartsWith(name))
         .FirstOrDefault(filter ?? (_ => true));

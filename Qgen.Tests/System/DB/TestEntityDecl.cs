@@ -13,7 +13,7 @@ public class TestEntityDecl
     public string? Name { get; set; }
 
     [EnableFiltering(nameof(Transformers.Abs), typeof(Transformers))]
-    [EnableSearching]
+    [EnableSearching(nameof(Transformers.GetMsgForCode), typeof(Transformers))]
     [EnableGrouping]
     public int Code { get; set; }
 }

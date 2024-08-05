@@ -17,10 +17,14 @@ public static class Constants
     public static readonly Type SchemaBuilderType = typeof(SchemaBuilder<>);
     public static readonly string SchemaBuilderFullName = SchemaBuilderType.FullName.Substring(0, SchemaBuilderType.FullName.Length - 2);
 
+    public static readonly string[] SearchWithNames = GetAttributeNames<SearchWithAttribute>();
+    public static readonly string[] DefaultOrderingNames = GetAttributeNames<DefaultSortPropertyAttribute>();
+
     public static readonly string SbldRegisterField = nameof(SchemaBuilder<int>.RegisterField);
     public static readonly string SbldEnableAll = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableAll);
     public static readonly string SbldEnableFilter = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableFiltering);
     public static readonly string SbldEnableSearch = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSearching);
+    public static readonly string SbldEnableSearchWith = nameof(SchemaBuilder<int>.FieldBuilder<int>.UseCustomSearch);
     public static readonly string SbldEnableSort = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSorting);
     public static readonly string SbldEnableGroup = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableGrouping);
     public static readonly string AddDefaultSort = nameof(SchemaBuilder<int>.AddDefaultOrderingLayer);

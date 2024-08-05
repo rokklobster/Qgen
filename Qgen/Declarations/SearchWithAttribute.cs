@@ -1,9 +1,9 @@
 ﻿namespace Qgen.Declarations;
 
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class EnableSearchingAttribute : EnableFeaturesAttribute
+public sealed class SearchWithAttribute : EnableFeaturesAttribute
 {
-    public EnableSearchingAttribute(string? method = null, Type? type = null)
+    public SearchWithAttribute(string? method = null, Type? type = null)
     {
         EnableSearching = true;
         if (!string.IsNullOrWhiteSpace(method))

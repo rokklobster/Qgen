@@ -3,9 +3,10 @@
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class EnableSortingAttribute : EnableFeaturesAttribute
 {
-    public EnableSortingAttribute(DefaultSorting defaultSortingField = DefaultSorting.None)
+    public EnableSortingAttribute(string? method = null, Type? type = null)
     {
         EnableSorting = true;
-        DefaultSortingDirection = defaultSortingField;
+        if (!string.IsNullOrWhiteSpace(method))
+            SortReader = new(type, method!);
     }
 }

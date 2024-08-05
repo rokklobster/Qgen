@@ -7,7 +7,7 @@ public class SchemaGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-#if DEBUG
+#if !DEBUG
          if (!System.Diagnostics.Debugger.IsAttached)
              System.Diagnostics.Debugger.Launch();
 #endif

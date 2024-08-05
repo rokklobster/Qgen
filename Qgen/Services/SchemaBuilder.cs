@@ -83,14 +83,14 @@ public class SchemaBuilder<T>
         public FieldBuilder<F> EnableSorting(Func<Expression, Expression>? customAccess = null)
         {
             fieldSchema.Sort = px => Property(px, property);
-            cust.Filter = customAccess;
+            cust.Sort = customAccess;
             return this;
         }
 
         public FieldBuilder<F> EnableGrouping(Func<Expression, Expression>? customAccess = null)
         {
             fieldSchema.Group = px => Call(Property(px, property), ObjectToStringMethod);
-            cust.Filter = customAccess;
+            cust.Group = customAccess;
             return this;
         }
 
@@ -100,7 +100,15 @@ public class SchemaBuilder<T>
                 property.PropertyType == typeof(string)
                 ? (px => Property(px, property))
                 : (px => Call(Property(px, property), ObjectToStringMethod));
-            cust.Filter = customAccess;
+            cust.Search = customAccess;
+            return this;
+        }
+
+        public FieldBuilder<F> UseDefaultSearchingMethod(Func<Expression, Expression, Expression> t)
+        {
+            if (t is not null)
+                typeSchema.customSearchTransformers[name] = t;
+
             return this;
         }
 
