@@ -27,7 +27,7 @@ namespace Qgen.Tests.Fixtures
         }
 
         [Theory]
-        [MemberData(nameof(PrepareData))]
+        [MemberData(nameof(FilteringCases))]
         public Task FilterCustomizationWorksAsExpected(Operation op, string arg, Func<TestDb, IQueryable<TestEntityDecl>> expected) =>
             fixture.RunTest<TestEntityDecl>(async (db, qb, _) =>
             {
