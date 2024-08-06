@@ -12,7 +12,7 @@ public class SquadronDbFixtureBase : DbFixtureBase
     {
         await resource.InitializeAsync();
 
-        TestDb db = new((b, s) => b.UseNpgsql(resource.GetConnectionString(s)));
+        TestDb db = new((b, _) => b.UseNpgsql(resource.ConnectionString));
         await db.Database.ExecuteSqlRawAsync(DbInit);
         return db;
     }
