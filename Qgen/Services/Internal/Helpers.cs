@@ -17,9 +17,13 @@ public static class Helpers
         return v;
     }
 
+    public static V SafeGet<K, V>(this IDictionary<K, V> map, K key, V fallback) => map.TryGetValue(key, out V v) ? v : fallback;
+
     public static T Pipe<S, T>(this S value, Func<S, T> f) => f(value);
 
     public static T Pipe<S, A, T>(this S value, Func<A, S, T> f, A arg) => f(arg, value);
+
+    public static Func<T, bool> Not<T>(Func<T, bool> f) => v => !f(v);
 
     public static IEnumerable<T> OfTypes<T>(this IEnumerable<T> source, params Type[] types)=>
         source.Where(x => types.Any(t => t.IsAssignableFrom(x.GetType())));

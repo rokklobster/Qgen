@@ -36,7 +36,10 @@ public class SchemaContainer<T> : Schema<T>
     public Ordering? DefaultOrdering { get; internal set; }
 
     public IEnumerable<(string, Func<ParameterExpression, Expression>)> GetSearchable() =>
-        schemata.Where(x => x.Value.Search is not null).Select(x => (x.Key, x.Value.Search))!;
+        schemata
+            .Where(x => x.Value.Search is not null)
+            .Select(x => (x.Key, TryGetFor(Target.Search, x.Key)))
+            .Where(x => x.Item2 is not null)!;
 
     public Func<Expression, Expression, Expression> GetSearchTransformer(string field) =>
         customSearchTransformers.TryGetValue(field, out var transformer)

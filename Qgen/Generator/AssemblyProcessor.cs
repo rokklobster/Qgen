@@ -156,8 +156,22 @@ namespace {0} {{
 
         if (GetSingleContaining(attrNames, EnableAllNames) is { } a)
         {
-            sb.AppendFormat("\t\t\tres.{0}(t => t.{1}).{2}();\n",
+            sb.AppendFormat("\t\t\tres.{0}(t => t.{1})\n\t\t\t\t.{2}()",
                 SbldRegisterField, propName, SbldEnableAll);
+
+            // todo: search for positional args disabling features
+            var disable = a.ArgumentList?.Arguments
+                .Where(x => x.NameEquals is not null)
+                .Select(x => (x.NameEquals!.Name.ToString(), x.Expression.ToString() == "false"))
+                .Where(x=>x.Item2)
+                .Select(x=>DisablingMapping.SafeGet(x.Item1, ""))
+                .Where(Helpers.Not<string>(string.IsNullOrEmpty))
+                .Select(x => $"{x}: true")
+                .Pipe(string.Join, ", ");
+            if (!string.IsNullOrWhiteSpace(disable))
+                sb.AppendFormat("\n\t\t\t\t.{0}({1})", DisableMethod, disable);
+
+            sb.AppendLine(";");
 
             if (a.ArgumentList?.Arguments.Select(x => x.GetText().ToString()).First(x => !x.Contains(nameof(DefaultSorting.None))) is { } s)
                 sb.AppendFormat("\t\t\tres.{0}(t => t.{1}, {2});\n",

@@ -6,28 +6,28 @@ namespace Qgen.Generator;
 
 public static class Constants
 {
-    public static string SchemaRepoTypeName = typeof(SchemaRepo).FullName;
+    public static readonly string SchemaRepoTypeName = typeof(SchemaRepo).FullName;
 
     public static readonly Type SchemaTType = typeof(Schema<>);
     public static readonly string SchemaTFullName = SchemaTType.FullName.Substring(0, SchemaTType.FullName.IndexOf('`'));
 
     public static readonly string DefaultRepoTypeName = typeof(DefaultSchemaRepo).FullName;
 
-    public static readonly string SchemaBuilderResult = nameof(SchemaBuilder<int>.Result);
+    public const string SchemaBuilderResult = nameof(SchemaBuilder<int>.Result);
     public static readonly Type SchemaBuilderType = typeof(SchemaBuilder<>);
     public static readonly string SchemaBuilderFullName = SchemaBuilderType.FullName.Substring(0, SchemaBuilderType.FullName.Length - 2);
 
     public static readonly string[] SearchWithNames = GetAttributeNames<SearchWithAttribute>();
     public static readonly string[] DefaultOrderingNames = GetAttributeNames<DefaultSortPropertyAttribute>();
 
-    public static readonly string SbldRegisterField = nameof(SchemaBuilder<int>.RegisterField);
-    public static readonly string SbldEnableAll = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableAll);
-    public static readonly string SbldEnableFilter = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableFiltering);
-    public static readonly string SbldEnableSearch = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSearching);
-    public static readonly string SbldEnableSearchWith = nameof(SchemaBuilder<int>.FieldBuilder<int>.UseCustomSearch);
-    public static readonly string SbldEnableSort = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSorting);
-    public static readonly string SbldEnableGroup = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableGrouping);
-    public static readonly string AddDefaultSort = nameof(SchemaBuilder<int>.AddDefaultOrderingLayer);
+    public const string SbldRegisterField = nameof(SchemaBuilder<int>.RegisterField);
+    public const string SbldEnableAll = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableAll);
+    public const string SbldEnableFilter = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableFiltering);
+    public const string SbldEnableSearch = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSearching);
+    public const string SbldEnableSearchWith = nameof(SchemaBuilder<int>.FieldBuilder<int>.UseCustomSearch);
+    public const string SbldEnableSort = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableSorting);
+    public const string SbldEnableGroup = nameof(SchemaBuilder<int>.FieldBuilder<int>.EnableGrouping);
+    public const string AddDefaultSort = nameof(SchemaBuilder<int>.AddDefaultOrderingLayer);
 
     public static readonly string[] EnableAllNames = GetAttributeNames<EnableAllFeaturesAttribute>();
 
@@ -38,6 +38,15 @@ public static class Constants
     public static readonly string[] EnableSortingNames = GetAttributeNames<EnableSortingAttribute>();
 
     public static readonly string[] EnableGroupingNames = GetAttributeNames<EnableGroupingAttribute>();
+
+    public const string DisableMethod = nameof(SchemaBuilder<int>.FieldBuilder<int>.Disable);
+
+    public static readonly Dictionary<string, string> DisablingMapping = new() {
+        {nameof(EnableFeaturesAttribute.EnableFiltering), "filtering" },
+        {nameof(EnableFeaturesAttribute.EnableSearching), "searching" },
+        {nameof(EnableFeaturesAttribute.EnableSorting), "sorting" },
+        {nameof(EnableFeaturesAttribute.EnableGrouping), "grouping" },
+    };
 
     private static string[] GetAttributeNames<T>() where T : Attribute
     {

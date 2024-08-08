@@ -97,7 +97,7 @@ public class SchemaBuilder<T>
         public FieldBuilder<F> EnableSearching(Func<Expression, Expression>? customAccess = null)
         {
             fieldSchema.Search =
-                property.PropertyType == typeof(string)
+                property.PropertyType == typeof(string) || customAccess is not null
                 ? (px => Property(px, property))
                 : (px => Call(Property(px, property), ObjectToStringMethod));
             cust.Search = customAccess;

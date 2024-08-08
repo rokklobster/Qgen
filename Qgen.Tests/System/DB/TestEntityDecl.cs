@@ -6,7 +6,7 @@ namespace Qgen.Tests.System.DB;
 [RequiresSchema]
 public class TestEntityDecl
 {
-    [EnableAllFeatures(DefaultSorting.Desc)]
+    [EnableAllFeatures(DefaultSorting.Desc, EnableSearching = false)]
     public Guid Id { get; set; }
 
     [EnableAllFeatures]

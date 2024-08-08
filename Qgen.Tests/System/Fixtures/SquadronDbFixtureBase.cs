@@ -14,7 +14,7 @@ public class SquadronDbFixtureBase : DbFixtureBase
         await resource.CreateDatabaseAsync(name);
         await resource.RunSqlScriptAsync(DbInit, name);
         var conn = resource.GetConnectionString(name);
-        TestDb db = new((b, _) => b.UseNpgsql(conn));
+        TestDb db = new((b, _) => b.UseNpgsql(conn), false);
         return db;
     }
 
@@ -47,7 +47,7 @@ declare ret text;
 begin
     select ""Message"" into ret
     from ""CodeMapping""
-    where abs(""Code"") = code
+    where ""Code"" = abs(code)
     limit 1;
     return ret;
 end
