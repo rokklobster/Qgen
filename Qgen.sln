@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qgen", "Qgen\Qgen.csproj", "{67DD3CA5-65D2-43D6-B366-DA7FC6D09DCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Qgen", "Qgen\Qgen.csproj", "{67DD3CA5-65D2-43D6-B366-DA7FC6D09DCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qgen.Tests", "Qgen.Tests\Qgen.Tests.csproj", "{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Qgen.Tests", "Qgen.Tests\Qgen.Tests.csproj", "{FBFF861E-F733-464C-AE8A-2F3A81CD01C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

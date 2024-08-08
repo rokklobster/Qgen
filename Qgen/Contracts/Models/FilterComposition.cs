@@ -1,11 +1,17 @@
-﻿namespace Qgen.Contracts.Models
+﻿namespace Qgen.Contracts.Models;
+
+public class FilterComposition
 {
-    public class FilterComposition
+    public FilterComposition(CompositionOp op, FilterComposition[]? compositions = null, Filter[]? filters = null)
     {
-        public CompositionOp Op { get; init; }
-
-        public FilterComposition[]? Compositions { get; init; }
-
-        public Filter[]? Filters { get; init; }
+        Op = op;
+        Compositions = compositions;
+        Filters = filters;
     }
+
+    public CompositionOp Op { get; }
+
+    public FilterComposition[]? Compositions { get; }
+
+    public Filter[]? Filters { get; }
 }

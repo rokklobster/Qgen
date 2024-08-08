@@ -1,7 +1,6 @@
-﻿namespace Qgen.Contracts.Services
+﻿namespace Qgen.Contracts.Services;
+
+public interface SetProvider
 {
-    public interface SetProvider
-    {
-        IQueryable<T> Get<T>() where T : class;
-    }
+    IQueryable<T> Get<T>() where T : class;
 }
