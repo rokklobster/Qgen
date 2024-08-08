@@ -4,26 +4,25 @@ using Qgen.Contracts.Models;
 using Qgen.Tests.System.DB;
 using Qgen.Tests.System.Fixtures;
 using Qgen.Tests.System.Impls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Qgen.Tests.Fixtures
 {
-    public class Customizations : IClassFixture<SquadronDbFixtureBase>
+    public class Customizations : IClassFixture<SquadronDbFixtureBase>, IDisposable
     {
         private readonly SquadronDbFixtureBase fixture;
+        private readonly Action unregister;
 
         public Customizations(SquadronDbFixtureBase fixture)
         {
             this.fixture = fixture;
 
-            var db = fixture.Dependencies.Db;
-            db.EntitiesD.RemoveRange(db.EntitiesD);
-            db.AddRange(PrepareData());
-            db.SaveChanges();
+            unregister = fixture.RegisterPreTestCallback(async deps =>
+            {
+                var db = deps.Db;
+                db.EntitiesD.RemoveRange(db.EntitiesD);
+                await db.AddRangeAsync(PrepareData());
+                await db.SaveChangesAsync();
+            });
         }
 
         [Theory]
@@ -45,7 +44,7 @@ namespace Qgen.Tests.Fixtures
 
         private static IEnumerable<object[]> FilteringCases()
         {
-            return new[] { 
+            return new[] {
                 SimpleCase(Operation.Eq, "12", set => set.Where(x => Math.Abs(x.Code) == 12))
             };
         }
@@ -61,6 +60,11 @@ namespace Qgen.Tests.Fixtures
             return Enumerable.Range(-20, 41)
                 .SelectMany(x => names.Select(n => (x, n)))
                 .Select(x => new TestEntityDecl { Id = Guid.NewGuid(), Code = x.x, Name = x.n });
+        }
+
+        public void Dispose()
+        {
+            unregister();
         }
     }
 }

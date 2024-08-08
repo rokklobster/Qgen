@@ -10,14 +10,20 @@ public class SquadronDbFixtureBase : DbFixtureBase
 
     protected override async Task<TestDb> GetDb()
     {
-        await resource.InitializeAsync();
-
-        TestDb db = new((b, _) => b.UseNpgsql(resource.ConnectionString));
-        await db.Database.ExecuteSqlRawAsync(DbInit);
+        var name = "sq_tdb_" + Guid.NewGuid().ToString()[..6];
+        await resource.CreateDatabaseAsync(name);
+        await resource.RunSqlScriptAsync(DbInit, name);
+        var conn = resource.GetConnectionString(name);
+        TestDb db = new((b, _) => b.UseNpgsql(conn));
         return db;
     }
 
-    protected override async Task OnDispose()
+    public override async Task InitializeAsync()
+    {
+        await resource.InitializeAsync();
+    }
+
+    public override async Task DisposeAsync()
     {
         await resource.DisposeAsync();
     }
@@ -25,20 +31,10 @@ public class SquadronDbFixtureBase : DbFixtureBase
     private const string DbInit = @"
 CREATE EXTENSION ""uuid-ossp"";
 
-create table if not exists ""EntitiesD""(
-  ""Id"" uuid primary key,
-  ""Name"" nvarchar(63),
-  ""Code"" int);
-create table if not exists ""EntitiesF""(
-  ""Id"" uuid primary key,
-  ""Name"" nvarchar(63),
-  ""Amount"" int,
-  ""Abs"" int);
+create table if not exists ""EntitiesD"" (""Id"" uuid primary key, ""Name"" varchar (63), ""Code"" int);
+create table if not exists ""EntitiesF"" (""Id"" uuid primary key, ""Name"" varchar (63), ""Amount"" int, ""Abs"" int);
 
-create table if not exists ""CodeMapping""(
-  ""Code"",
-  ""Message"" nvarchar(63)
-);
+create table if not exists ""CodeMapping"" (""Code"" int, ""Message"" varchar (63));
 
 create or replace function get_code_msg(code int)
 returns text

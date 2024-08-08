@@ -6,28 +6,40 @@ namespace Qgen.Tests.System.Fixtures;
 
 public abstract class DbFixtureBase : IAsyncLifetime
 {
-    public Dependencies Dependencies { get; private set; }
+    private readonly Dictionary<int, Func<Dependencies, Task>> callbacks = new();
+    private int lastKey = 0;
 
-    public Task RunTest<T>(Func<TestDb, QueryBuilder<T>, Dependencies, Task> test) where T : class
-    {
-        var builder = Dependencies.QueryBuilder<T>();
-        return test(Dependencies.Db, builder, Dependencies);
-    }
-
-    public async Task DisposeAsync()
-    {
-        await Dependencies.Db.Database.EnsureDeletedAsync();
-        await OnDispose();
-    }
-
-    public async Task InitializeAsync()
+    public async Task<Dependencies> GetDependencies()
     {
         var db = await GetDb();
         await db.Database.EnsureCreatedAsync();
-        Dependencies = new(db);
+        return new(db);
     }
+
+    public async Task RunTest<T>(Func<TestDb, QueryBuilder<T>, Dependencies, Task> test) where T : class
+    {
+        var deps = await GetDependencies();
+
+        foreach (var cb in callbacks.Values)
+        {
+            await cb(deps);
+        }
+
+        var builder = deps.QueryBuilder<T>();
+        await test(deps.Db, builder, deps);
+    }
+
+    public virtual Task DisposeAsync() => Task.CompletedTask;
+
+    public abstract Task InitializeAsync();
 
     protected abstract Task<TestDb> GetDb();
 
-    protected virtual Task OnDispose() => Task.CompletedTask;
+    public Action RegisterPreTestCallback(Func<Dependencies, Task> callback)
+    {
+        var key = Interlocked.Increment(ref lastKey);
+
+        callbacks.Add(key, callback);
+        return () => callbacks.Remove(key);
+    }
 }

@@ -2,26 +2,28 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Qgen.Contracts.Models;
-using Qgen.Tests.System;
 using Qgen.Tests.System.DB;
 using Qgen.Tests.System.Fixtures;
 using Qgen.Tests.System.Impls;
 
 namespace Qgen.Tests.Fixtures;
 
-public class Strings : IClassFixture<InMemoryDbFixtureBase>
+public class Strings : IClassFixture<InMemoryDbFixtureBase>, IDisposable
 {
     private readonly InMemoryDbFixtureBase fixture;
+    private readonly Action unregister;
 
     public Strings(InMemoryDbFixtureBase fixture)
     {
         this.fixture = fixture;
 
-        var db = fixture.Dependencies.Db;
-        db.EntitiesF.RemoveRange(db.EntitiesF);
-        db.AddRange(PrepareData());
-        db.SaveChanges();
-        this.fixture = fixture;
+        unregister = fixture.RegisterPreTestCallback(async deps =>
+        {
+            var db = deps.Db;
+            db.EntitiesF.RemoveRange(db.EntitiesF);
+            await db.AddRangeAsync(PrepareData());
+            await db.SaveChangesAsync();
+        });
     }
 
     [Theory]
@@ -71,4 +73,9 @@ public class Strings : IClassFixture<InMemoryDbFixtureBase>
 
     private static string Bits(int i, int width) =>
         new(Enumerable.Range(0, width).Select(x => 1 << x).Reverse().Select(x => (i & x) == 0 ? '0' : '1').ToArray());
+
+    public void Dispose()
+    {
+        unregister();
+    }
 }

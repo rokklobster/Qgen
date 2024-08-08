@@ -7,18 +7,22 @@ using Qgen.Tests.System.Impls;
 
 namespace Qgen.Tests.Fixtures;
 
-public class Numerics : IClassFixture<InMemoryDbFixtureBase>
+public class Numerics : IClassFixture<InMemoryDbFixtureBase>, IDisposable
 {
     private readonly InMemoryDbFixtureBase fixture;
+    private readonly Action unregister;
 
     public Numerics(InMemoryDbFixtureBase fixture)
     {
         this.fixture = fixture;
 
-        var db = fixture.Dependencies.Db;
-        db.EntitiesF.RemoveRange(db.EntitiesF);
-        db.AddRange(PrepareData());
-        db.SaveChanges();
+        unregister = fixture.RegisterPreTestCallback(async deps =>
+        {
+            var db = deps.Db;
+            db.EntitiesF.RemoveRange(db.EntitiesF);
+            await db.AddRangeAsync(PrepareData());
+            await db.SaveChangesAsync();
+        });
     }
 
     [Theory]
@@ -168,4 +172,9 @@ public class Numerics : IClassFixture<InMemoryDbFixtureBase>
     private static TestEntityFluent[] PrepareData() => Enumerable.Range(-32, 64)
         .Select(i => new TestEntityFluent { Id = Guid.NewGuid(), Amount = i, Abs = i })
         .ToArray();
+
+    public void Dispose()
+    {
+        unregister();
+    }
 }
